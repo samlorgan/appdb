@@ -36,7 +36,7 @@ func Init() *Database {
 	dbpass := "pass"
 	dbhost := "localhost"
 	dbport := "3306"
-	dbname := "poc_ent"
+	dbname := "appdb"
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?parseTime=True", dbuser, dbpass, dbhost, dbport, dbname)
 	client, err := ent.Open("mysql", connectionString)
 	if err != nil {
@@ -61,7 +61,7 @@ func (d *Database) GetAllApplicationCategories() []*ent.ApplicationCategory {
 	if err != nil {
 		fmt.Printf("failed getting all application categories: %v\n", err)
 	}
-	fmt.Printf("Application Categories: %+v\n", applicationCategories)
+	// fmt.Printf("Application Categories: %+v\n", applicationCategories)
 	return applicationCategories
 }
 func (d *Database) CreateApplication(name string, description string, altText string, uri string, iconURI string,
@@ -81,7 +81,7 @@ func (d *Database) CreateApplication(name string, description string, altText st
 		fmt.Printf("failed creating application: %v\n", err)
 		return nil, fmt.Errorf("failed creating application category: %v", err)
 	}
-	fmt.Printf("Application: %+v\n", application)
+	// fmt.Printf("Application: %+v\n", application)
 	return application, nil
 }
 func (d *Database) GetAllApplications() []*ent.Application {
@@ -89,7 +89,7 @@ func (d *Database) GetAllApplications() []*ent.Application {
 	if err != nil {
 		fmt.Printf("failed getting all applications: %v\n", err)
 	}
-	fmt.Printf("Applications: %+v\n", applications)
+	// fmt.Printf("Applications: %+v\n", applications)
 	return applications
 }
 func (d *Database) CreateADGroup(name string) (*ent.ADGroup, error) {
@@ -100,7 +100,7 @@ func (d *Database) CreateADGroup(name string) (*ent.ADGroup, error) {
 		fmt.Printf("failed creating ad group: %v\n", err)
 		return nil, fmt.Errorf("failed creating application category: %v", err)
 	}
-	fmt.Printf("ADGroup: %+v\n", adGroup)
+	// fmt.Printf("ADGroup: %+v\n", adGroup)
 	return adGroup, nil
 }
 func (d *Database) GetAllADGroups() []*ent.ADGroup {
@@ -108,7 +108,7 @@ func (d *Database) GetAllADGroups() []*ent.ADGroup {
 	if err != nil {
 		fmt.Printf("failed getting all ad groups: %v\n", err)
 	}
-	fmt.Printf("ADGroups: %+v\n", adGroups)
+	// fmt.Printf("ADGroups: %+v\n", adGroups)
 	return adGroups
 }
 func (d *Database) CreateCommunity(whamSiteID int, whamTitle string, whamDescription string,
@@ -130,7 +130,7 @@ func (d *Database) CreateCommunity(whamSiteID int, whamTitle string, whamDescrip
 		fmt.Printf("failed creating community: %v\n", err)
 		return nil, fmt.Errorf("failed creating community: %v", err)
 	}
-	fmt.Printf("Community: %+v\n", community)
+	// fmt.Printf("Community: %+v\n", community)
 	return community, nil
 }
 func (d *Database) GetAllCommunities() []*ent.Community {
@@ -138,7 +138,7 @@ func (d *Database) GetAllCommunities() []*ent.Community {
 	if err != nil {
 		fmt.Printf("failed getting all communities: %v\n", err)
 	}
-	fmt.Printf("Communities: %+v\n", communities)
+	// fmt.Printf("Communities: %+v\n", communities)
 	return communities
 }
 func (d *Database) CreatePartner(WhamSiteID int, WhamTitle string, WhamDescription string, KeycloakOrganisation string,
@@ -157,7 +157,7 @@ func (d *Database) CreatePartner(WhamSiteID int, WhamTitle string, WhamDescripti
 		fmt.Printf("failed creating partner: %v\n", err)
 		return nil, fmt.Errorf("failed creating partner: %v", err)
 	}
-	fmt.Printf("Partner: %+v\n", partner)
+	// fmt.Printf("Partner: %+v\n", partner)
 	return partner, nil
 }
 func (d *Database) GetAllPartners() []*ent.Partner {
@@ -165,7 +165,7 @@ func (d *Database) GetAllPartners() []*ent.Partner {
 	if err != nil {
 		fmt.Printf("failed getting all partners: %v\n", err)
 	}
-	fmt.Printf("Partners: %+v\n", partners)
+	// fmt.Printf("Partners: %+v\n", partners)
 	return partners
 }
 
@@ -179,7 +179,7 @@ func (d *Database) CreatePartnerPageLinkFragment(linkText string, whamPartnerURL
 		fmt.Printf("failed creating partner page link fragment: %v\n", err)
 		return nil, fmt.Errorf("failed creating partner page link fragment: %v", err)
 	}
-	fmt.Printf("Partner Page Link Fragment: %+v\n", partnerPageLinkFragment)
+	// fmt.Printf("Partner Page Link Fragment: %+v\n", partnerPageLinkFragment)
 	return partnerPageLinkFragment, nil
 }
 
@@ -188,7 +188,7 @@ func (d *Database) GetAllPartnerPageLinkFragments() []*ent.PartnerPageLinkFragme
 	if err != nil {
 		fmt.Printf("failed getting all partner page link fragments: %v\n", err)
 	}
-	fmt.Printf("Partner Page Link Fragments: %+v\n", partnerPageLinkFragments)
+	// fmt.Printf("Partner Page Link Fragments: %+v\n", partnerPageLinkFragments)
 	return partnerPageLinkFragments
 }
 func (d *Database) CreateCommunityCategory(name string, displayOrder int) (*ent.CommunityCategory, error) {
@@ -200,7 +200,7 @@ func (d *Database) CreateCommunityCategory(name string, displayOrder int) (*ent.
 		fmt.Printf("failed creating community category: %v\n", err)
 		return nil, fmt.Errorf("failed creating community category: %v", err)
 	}
-	fmt.Printf("Community Category: %+v\n", communityCategory)
+	// fmt.Printf("Community Category: %+v\n", communityCategory)
 	return communityCategory, nil
 }
 
@@ -209,7 +209,7 @@ func (d *Database) GetAllCommunityCategories() []*ent.CommunityCategory {
 	if err != nil {
 		fmt.Printf("failed getting all community categories: %v\n", err)
 	}
-	fmt.Printf("Community Categories: %+v\n", communityCategories)
+	// fmt.Printf("Community Categories: %+v\n", communityCategories)
 	return communityCategories
 }
 

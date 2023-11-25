@@ -2,7 +2,7 @@
 
 api:
 	go run dbapp/cmd/api/main.go
-teardown:
+drop:
 	go run dbapp/cmd/drop/main.go
 migrate:
 	go run dbapp/cmd/migrate/main.go

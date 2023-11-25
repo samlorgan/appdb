@@ -8,12 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func connect() (*sql.DB, error) {
-	dbuser := "appuser"
-	dbpass := "pass"
-	dbhost := "localhost"
-	dbport := "3306"
-	dbname := "appdb"
+func connect(dbuser, dbpass, dbhost, dbport, dbname string) (*sql.DB, error) {
 	connectionString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbuser, dbpass, dbhost, dbport, dbname)
 	db, err := sql.Open("mysql", connectionString)
 	if err != nil {
@@ -47,13 +42,19 @@ func dropTable(db *sql.DB, table string) error {
 
 func main() {
 	fmt.Println("Running cmd/teardown main")
-	db, err := connect()
+	dbuser := "appuser"
+	dbpass := "pass"
+	dbhost := "localhost"
+	dbport := "3306"
+	dbname := "appdb"
+
+	db, err := connect(dbuser, dbpass, dbhost, dbport, dbname)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	tables, err := getTables(db, "poc_ent")
+	tables, err := getTables(db, dbname)
 	if err != nil {
 		log.Fatal(err)
 	}
