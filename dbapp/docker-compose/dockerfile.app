@@ -8,4 +8,4 @@ RUN apk update && \
     apk add bind-tools && \
     apk add net-tools
 RUN    go install github.com/githubnemo/CompileDaemon@latest  
-RUN   CGO_ENABLED=0 go install github.com/go-delve/delve/cmd/dlv@latest
+RUN   CGO_ENABLED=0 go install github.com/go-delve/delve/cmd/api/dlv@latest
