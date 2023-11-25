@@ -1,0 +1,54 @@
+version: "3.4"
+services:
+  poc_ent:
+    build:
+      context: ../docker-compose
+      dockerfile: dockerfile.app
+    # security_opt:
+    #   - seccomp:unconfined
+    volumes:
+      # - type: bind
+      #   source: ../cmd
+      #   target: /app/cmd/
+      # - type: bind
+      #   source: ../utils
+      #   target: /app/utils/
+      # - type: bind
+      #   source: ../database
+      #   target: /app/database/
+      # - type: bind
+      #   source: ../handlers
+      #   target: /app/handlers/
+      # - type: bind
+      #   source: ../scripts
+      #   target: /app/scripts/
+      # - type: bind
+      #   source: ../go.mod
+      #   target: /app/go.mod
+      # - type: bind
+      #   source: ../go.sum
+      #   target: /app/go.sum
+      - type: bind
+        source: ../
+        target: /app/
+    networks: 
+      - samnet
+    environment:
+      - APP_NAME=${APP_NAME}
+      - PORT_NUMBER=${PORT_NUMBER}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_NAME=${DB_NAME}
+    restart: on-failure
+    ports:
+      - 2350:2350
+      - 8090:8090
+    command: >
+      sh -c "cd /app &&
+          go build -gcflags=all=\"-N -l\" -o main /app/cmd &&
+          dlv --listen=:2350 --headless=true --api-version=2 --accept-multiclient exec /app/main --continue"
+networks:
+  samnet:
+    external: true
