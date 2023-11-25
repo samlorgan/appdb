@@ -13,6 +13,9 @@ func CreateRoutes(app App) http.Handler {
 	r.HandleFunc("/wave", WaveHandler).Methods("GET")
 	r.HandleFunc("/countsalesitems", app.CountSalesItemsHandler).Methods("GET")
 	r.HandleFunc("/salesitem/{name}", app.GetSalesItemsHandler).Methods("GET")
+	r.HandleFunc("/partner{name}", app.GetPartner).Methods("GET")
+	r.HandleFunc("/allpartners", app.GetAllPartners).Methods("GET")
+
 	return standardMiddleware.Then(r)
 
 }

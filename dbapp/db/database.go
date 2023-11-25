@@ -13,16 +13,28 @@ import (
 type IDatabase interface {
 	CreateApplicationCategory(name string, displayOrder int) (*ent.ApplicationCategory, error)
 	GetAllApplicationCategories() []*ent.ApplicationCategory
+	UpdateApplicationCategory(applicationCategory *ent.ApplicationCategory) (*ent.ApplicationCategory, error)
+	DeleteApplicationCategory(applicationCategory *ent.ApplicationCategory) error
 	CreateApplication(name string, description string, altText string, uri string, iconURI string, isFavourite bool, validFrom time.Time, validTo time.Time, applicationCategory *ent.ApplicationCategory) (*ent.Application, error)
 	GetAllApplications() []*ent.Application
+	UpdateApplication(application *ent.Application) (*ent.Application, error)
+	DeleteApplication(application *ent.Application) error
 	CreateADGroup(name string) (*ent.ADGroup, error)
 	GetAllADGroups() []*ent.ADGroup
+	UpdateADGroup(adGroup *ent.ADGroup) (*ent.ADGroup, error)
+	DeleteADGroup(adGroup *ent.ADGroup) error
 	CreateCommunity(whamSiteID int, whamTitle string, whanDescription string, whamCommunityURL string, whamCreated time.Time, whamUpdated time.Time, featuredFrom time.Time, featuredTo time.Time, adGroups []*ent.ADGroup, communityCategories []*ent.CommunityCategory) (*ent.Community, error)
 	GetAllCommunities() []*ent.Community
+	UpdateCommunity(community *ent.Community) (*ent.Community, error)
+	DeleteCommunity(community *ent.Community) error
 	CreateCommunityCategory(name string, displayOrder int) (*ent.CommunityCategory, error)
 	GetAllCommunityCategories() []*ent.CommunityCategory
+	UpdateCommunityCategory(communityCategory *ent.CommunityCategory) (*ent.CommunityCategory, error)
+	DeleteCommunityCategory(communityCategory *ent.CommunityCategory) error
 	CreatePartner(whamSiteID int, whamTitle string, whamDescription string, KeycloakOrganisation string, whamPartnerURL string, whamCreated time.Time, whamUpdated time.Time, applications []*ent.Application) (*ent.Partner, error)
 	GetAllPartners() []*ent.Partner
+	UpdatePartner(partner *ent.Partner) (*ent.Partner, error)
+	DeletePartner(partner *ent.Partner) error
 	CreatePartnerPageLinkFragment(linkText string, whamPartnerURLSuffix string, displayOrder int) (*ent.PartnerPageLinkFragment, error)
 	GetAllPartnerPageLinkFragments() []*ent.PartnerPageLinkFragment
 }
@@ -213,254 +225,213 @@ func (d *Database) GetAllCommunityCategories() []*ent.CommunityCategory {
 	return communityCategories
 }
 
-// func (d *Database) CreateCountry(code string, name string, currency string, sanctioned bool, armySize int) (*ent.Country, error) {
-// 	createdCountry, err := d.client.Country.Create().
-// 		SetCode(code).
-// 		SetName(name).
-// 		SetCurrency(currency).
-// 		SetSanctioned(sanctioned).
-// 		SetArmySize(armySize).
-// 		Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed creating country: %v\n", err)
-// 		return nil, fmt.Errorf("failed creating country: %v", err)
-// 	}
-// 	fmt.Printf("Country was created: %+v\n", spew.Sdump(*createdCountry))
-// 	return createdCountry, nil
-// }
-// func (d *Database) SaveCountry(country *ent.Country) (*ent.Country, error) {
-// 	savedCountry, err := d.client.Country.Create().
-// 		SetCode(country.Code).
-// 		SetName(country.Name).
-// 		SetCurrency(country.Currency).
-// 		SetSanctioned(country.Sanctioned).
-// 		SetArmySize(country.ArmySize).
-// 		Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed saving country: %v\n", err)
-// 		return nil, fmt.Errorf("failed saving country: %v", err)
-// 	}
-// 	fmt.Printf("Country was saved: %+v\n", spew.Sdump(*savedCountry))
-// 	return savedCountry, nil
-// }
+func (d *Database) UpdateApplicationCategory(applicationCategory *ent.ApplicationCategory) (*ent.ApplicationCategory, error) {
+	foundApplicationCategory, err := d.client.ApplicationCategory.Get(context.Background(), applicationCategory.ID)
+	if err != nil {
+		fmt.Printf("failed updating application category: %v\n", err)
+		return nil, fmt.Errorf("failed updating application category: %v", err)
+	}
+	updatedApplicationCategory, err := foundApplicationCategory.Update().
+		SetName(applicationCategory.Name).
+		SetDisplayOrder(applicationCategory.DisplayOrder).
+		Save(context.Background())
+	if err != nil {
+		fmt.Printf("failed updating application category: %v\n", err)
+		return nil, fmt.Errorf("failed updating application category: %v", err)
+	}
+	// fmt.Printf("Application Category was updated from: %+v\n to: %+v\n", spew.Sdump(*foundApplicationCategory), spew.Sdump(*updatedApplicationCategory))
+	return updatedApplicationCategory, nil
+}
+func (d *Database) DeleteApplicationCategory(applicationCategory *ent.ApplicationCategory) error {
+	foundApplicationCategory, err := d.client.ApplicationCategory.Get(context.Background(), applicationCategory.ID)
+	if err != nil {
+		fmt.Printf("failed deleting application category: %v\n", err)
+		return fmt.Errorf("failed deleting application category: %v", err)
+	}
+	err = d.client.ApplicationCategory.DeleteOne(foundApplicationCategory).Exec(context.Background())
+	if err != nil {
+		fmt.Printf("failed deleting application category: %v\n", err)
+		return fmt.Errorf("failed deleting application category: %v", err)
+	}
+	// fmt.Printf("Application Category was deleted: %+v\n", spew.Sdump(*foundApplicationCategory))
+	return nil
+}
+func (d *Database) UpdateApplication(application *ent.Application) (*ent.Application, error) {
+	foundApplication, err := d.client.Application.Get(context.Background(), application.ID)
+	if err != nil {
+		fmt.Printf("failed updating application: %v\n", err)
+		return nil, fmt.Errorf("failed updating application: %v", err)
+	}
+	updatedApplication, err := foundApplication.Update().
+		SetName(application.Name).
+		SetDescription(application.Description).
+		SetAltText(application.AltText).
+		SetURI(application.URI).
+		SetIconURI(application.IconURI).
+		SetIsFavourite(application.IsFavourite).
+		SetValidFrom(application.ValidFrom).
+		SetValidTo(application.ValidTo).
+		SetApplicationCategory(application.Edges.ApplicationCategory).
+		Save(context.Background())
+	if err != nil {
+		fmt.Printf("failed updating application: %v\n", err)
+		return nil, fmt.Errorf("failed updating application: %v", err)
+	}
+	// fmt.Printf("Application was updated from: %+v\n to: %+v\n", spew.Sdump(*foundApplication), spew.Sdump(*updatedApplication))
+	return updatedApplication, nil
+}
 
-// func (d *Database) UpdateCountry(country *ent.Country) (*ent.Country, error) {
-// 	foundCountry, err := d.client.Country.Get(context.Background(), country.ID)
-// 	if err != nil {
-// 		fmt.Printf("failed updating country: %v\n", err)
-// 		return nil, fmt.Errorf("failed updating country: %v", err)
-// 	}
-// 	updatedCountry, err := foundCountry.Update().
-// 		SetCode(country.Code).
-// 		SetName(country.Name).
-// 		SetCurrency(country.Currency).
-// 		SetSanctioned(country.Sanctioned).
-// 		SetArmySize(country.ArmySize).
-// 		Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed updating country: %v\n", err)
-// 		return nil, fmt.Errorf("failed updating country: %v", err)
-// 	}
-// 	fmt.Printf("Country was updated from: %+v\n to: %+v\n", spew.Sdump(*foundCountry), spew.Sdump(*updatedCountry))
-// 	return updatedCountry, nil
-// }
-// func (d *Database) DeleteCountry(country *ent.Country) error {
-// 	foundCountry, err := d.client.Country.Get(context.Background(), country.ID)
-// 	if err != nil {
-// 		fmt.Printf("failed deleting country: %v\n", err)
-// 		return fmt.Errorf("failed updating country: %v", err)
-// 	}
-// 	err = d.client.Country.DeleteOne(foundCountry).Exec(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed deleting country: %v\n", err)
-// 		return fmt.Errorf("failed deleting country: %v", err)
-// 	}
-// 	fmt.Printf("Country was deleted: %+v\n", spew.Sdump(*foundCountry))
-// 	return nil
-// }
-
-// func (d *Database) CreateCustomer(firstName string, lastName string, email string, phone string, address string, favouriteColour *string, country ent.Country) (*ent.Customer, error) {
-// 	createdCustomer, err := d.client.Customer.Create().
-// 		SetFirstName(firstName).
-// 		SetLastName(lastName).
-// 		SetEmail(email).
-// 		SetPhone(phone).
-// 		SetFavouriteColour(*favouriteColour).
-// 		SetAddress(address).SetCountry(&country).Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed creating customer: %v\n", err)
-// 		return nil, fmt.Errorf("failed creating customer: %v", err)
-// 	}
-// 	fmt.Printf("Customer was created: %+v\n", spew.Sdump(*createdCustomer))
-// 	return createdCustomer, nil
-// }
-
-// func (d *Database) SaveCustomer(customer *ent.Customer) (*ent.Customer, error) {
-// 	savedCustomer, err := d.client.Customer.Create().
-// 		SetFirstName(customer.FirstName).
-// 		SetLastName(customer.LastName).
-// 		SetEmail(customer.Email).
-// 		SetPhone(customer.Phone).
-// 		SetFavouriteColour(*customer.FavouriteColour).
-// 		SetAddress(customer.Address).SetCountry(customer.Edges.Country).Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed saving customer: %v\n", err)
-// 		return nil, fmt.Errorf("failed saving customer: %v", err)
-// 	}
-// 	fmt.Printf("Customer was saved: %+v\n", spew.Sdump(*savedCustomer))
-// 	return savedCustomer, nil
-// }
-
-// func (d *Database) UpdateCustomer(customer *ent.Customer) (*ent.Customer, error) {
-// 	foundCustomer, err := d.client.Customer.Get(context.Background(), customer.ID)
-// 	if err != nil {
-// 		fmt.Printf("failed updating customer: %v\n", err)
-// 		return nil, fmt.Errorf("failed updating customer: %v", err)
-// 	}
-// 	updatedCustomer, err := d.client.Customer.Create().
-// 		SetFirstName(customer.FirstName).
-// 		SetLastName(customer.LastName).
-// 		SetEmail(customer.Email).
-// 		SetPhone(customer.Phone).
-// 		SetFavouriteColour(*customer.FavouriteColour).
-// 		SetAddress(customer.Address).SetCountry(customer.Edges.Country).Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed creating customer: %v\n", err)
-// 		return nil, fmt.Errorf("failed creating customer: %v", err)
-// 	}
-// 	fmt.Printf("Customer was updated from : %+v\n to : %+v\n", spew.Sdump(*foundCustomer), spew.Sdump(*updatedCustomer))
-// 	return updatedCustomer, nil
-// }
-
-// func (d *Database) DeleteCustomer(customer *ent.Customer) error {
-// 	foundCustomer, err := d.client.Customer.Get(context.Background(), customer.ID)
-// 	if err != nil {
-// 		fmt.Printf("failed deleting customer: %v\n", err)
-// 		return fmt.Errorf("failed updating customer: %v", err)
-// 	}
-// 	err = d.client.Customer.DeleteOne(foundCustomer).Exec(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed deleting customer: %v\n", err)
-// 		return fmt.Errorf("failed deleting customer: %v", err)
-// 	}
-// 	fmt.Printf("Customer was deleted: %+v\n", spew.Sdump(*foundCustomer))
-// 	return nil
-// }
-
-// func (d *Database) CreateProductLine(productCode int, itemName string, itemDescription string, itemPrice float64, itemKg float64, manufacturer ent.Country, assembler ent.Country, bannedCountries []*ent.Country) (*ent.ProductLine, error) {
-// 	productLine, err := d.client.ProductLine.Create().
-// 		SetProductCode(productCode).
-// 		SetItemName(itemName).
-// 		SetItemDescription(itemDescription).
-// 		SetItemPrice(itemPrice).
-// 		SetItemKg(itemKg).
-// 		SetManufactureCountry(&manufacturer).
-// 		SetAssemblerCountry(&assembler).
-// 		AddBannedInCountries(bannedCountries...).
-// 		Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed creating product line: %v\n", err)
-// 		return nil, fmt.Errorf("failed creating product line: %v", err)
-// 	}
-// 	fmt.Printf("Product line was created: %+v\n", spew.Sdump(*productLine))
-// 	return productLine, nil
-// }
-// func (d *Database) SaveProductLine(productLine ent.ProductLine) (*ent.ProductLine, error) {
-// 	savedProductLine, err := d.client.ProductLine.Create().
-// 		SetProductCode(productLine.ProductCode).
-// 		SetItemName(productLine.ItemName).
-// 		SetItemDescription(productLine.ItemDescription).
-// 		SetItemPrice(productLine.ItemPrice).
-// 		SetItemKg(productLine.ItemKg).
-// 		SetManufactureCountry(productLine.Edges.ManufactureCountry).
-// 		SetAssemblerCountry(productLine.Edges.AssemblerCountry).
-// 		AddBannedInCountries(productLine.Edges.BannedInCountries...).
-// 		Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed saving product line: %v\n", err)
-// 		return nil, fmt.Errorf("failed saving product line: %v", err)
-// 	}
-// 	fmt.Printf("Product line was saved: %+v\n", spew.Sdump(*savedProductLine))
-// 	return savedProductLine, nil
-// }
-
-// func (d *Database) UpdateProductLine(productLine ent.ProductLine) (*ent.ProductLine, error) {
-// 	foundProductLine, err := d.client.ProductLine.Get(context.Background(), productLine.ID)
-// 	if err != nil {
-// 		fmt.Printf("failed updating product line: %v\n", err)
-// 		return nil, fmt.Errorf("failed updating product line: %v", err)
-// 	}
-
-// 	updatedProductLine, err := d.client.ProductLine.Create().
-// 		SetProductCode(productLine.ProductCode).
-// 		SetItemName(productLine.ItemName).
-// 		SetItemDescription(productLine.ItemDescription).
-// 		SetItemPrice(productLine.ItemPrice).
-// 		SetItemKg(productLine.ItemKg).
-// 		SetManufactureCountry(productLine.Edges.ManufactureCountry).
-// 		SetAssemblerCountry(productLine.Edges.AssemblerCountry).
-// 		AddBannedInCountries(productLine.Edges.BannedInCountries...).
-// 		Save(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed updating product line: %v\n", err)
-// 		return nil, fmt.Errorf("failed updating product line: %v", err)
-// 	}
-// 	fmt.Printf("Product line was updated from: %+v\n to: %+v\n", spew.Sdump(*foundProductLine), spew.Sdump(*updatedProductLine))
-// 	return updatedProductLine, nil
-// }
-
-// func (d *Database) DeleteProductLine(productLine *ent.ProductLine) error {
-// 	foundProductLine, err := d.client.ProductLine.Get(context.Background(), productLine.ID)
-// 	if err != nil {
-// 		fmt.Printf("failed deleting productLine: %v\n", err)
-// 		return fmt.Errorf("failed updating productLine: %v", err)
-// 	}
-// 	err = d.client.ProductLine.DeleteOne(foundProductLine).Exec(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed deleting productLine: %v\n", err)
-// 		return fmt.Errorf("failed deleting productLine: %v", err)
-// 	}
-// 	fmt.Printf("ProductLine was deleted: %+v\n", spew.Sdump(*foundProductLine))
-// 	return nil
-// }
-
-// func (d *Database) GetAllCountries() []*ent.Country {
-// 	countries, err := d.client.Country.Query().All(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed getting all countries: %v\n", err)
-// 	}
-// 	fmt.Printf("Countries: %+v\n", spew.Sdump(countries))
-// 	return countries
-// }
-// func (d *Database) GetAllProductLines() []*ent.ProductLine {
-// 	productLine, err := d.client.ProductLine.Query().All(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed getting all productLine: %v\n", err)
-// 	}
-// 	fmt.Printf("ProductLine: %+v\n", spew.Sdump(productLine))
-// 	return productLine
-// }
-// func (d *Database) GetAllCustomers() []*ent.Customer {
-// 	customers, err := d.client.Customer.Query().All(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed getting all customers: %v\n", err)
-// 	}
-// 	fmt.Printf("Customers: %+v\n", spew.Sdump(customers))
-// 	return customers
-// }
-// func (d *Database) GetAllOrders() []*ent.Order {
-// 	orders, err := d.client.Order.Query().All(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed getting all orders: %v\n", err)
-// 	}
-// 	fmt.Printf("Orders: %+v\n", spew.Sdump(orders))
-// 	return orders
-// }
-// func (d *Database) GetAllOrderItems() []*ent.OrderItems {
-// 	orderItems, err := d.client.OrderItems.Query().All(context.Background())
-// 	if err != nil {
-// 		fmt.Printf("failed getting all orderItems: %v\n", err)
-// 	}
-// 	fmt.Printf("OrderItems: %+v\n", spew.Sdump(orderItems))
-// 	return orderItems
-// }
+func (d *Database) DeleteApplication(application *ent.Application) error {
+	foundApplication, err := d.client.Application.Get(context.Background(), application.ID)
+	if err != nil {
+		fmt.Printf("failed deleting application: %v\n", err)
+		return fmt.Errorf("failed deleting application: %v", err)
+	}
+	err = d.client.Application.DeleteOne(foundApplication).Exec(context.Background())
+	if err != nil {
+		fmt.Printf("failed deleting application: %v\n", err)
+		return fmt.Errorf("failed deleting application: %v", err)
+	}
+	// fmt.Printf("Application was deleted: %+v\n", spew.Sdump(*foundApplication))
+	return nil
+}
+func (d *Database) UpdateADGroup(adGroup *ent.ADGroup) (*ent.ADGroup, error) {
+	foundADGroup, err := d.client.ADGroup.Get(context.Background(), adGroup.ID)
+	if err != nil {
+		fmt.Printf("failed updating ad group: %v\n", err)
+		return nil, fmt.Errorf("failed updating ad group: %v", err)
+	}
+	updatedADGroup, err := foundADGroup.Update().
+		SetName(adGroup.Name).
+		Save(context.Background())
+	if err != nil {
+		fmt.Printf("failed updating ad group: %v\n", err)
+		return nil, fmt.Errorf("failed updating ad group: %v", err)
+	}
+	// fmt.Printf("AD Group was updated from: %+v\n to: %+v\n", spew.Sdump(*foundADGroup), spew.Sdump(*updatedADGroup))
+	return updatedADGroup, nil
+}
+func (d *Database) DeleteADGroup(adGroup *ent.ADGroup) error {
+	foundADGroup, err := d.client.ADGroup.Get(context.Background(), adGroup.ID)
+	if err != nil {
+		fmt.Printf("failed deleting ad group: %v\n", err)
+		return fmt.Errorf("failed deleting ad group: %v", err)
+	}
+	err = d.client.ADGroup.DeleteOne(foundADGroup).Exec(context.Background())
+	if err != nil {
+		fmt.Printf("failed deleting ad group: %v\n", err)
+		return fmt.Errorf("failed deleting ad group: %v", err)
+	}
+	// fmt.Printf("AD Group was deleted: %+v\n", spew.Sdump(*foundADGroup))
+	return nil
+}
+func (d *Database) UpdateCommunity(community *ent.Community) (*ent.Community, error) {
+	foundCommunity, err := d.client.Community.Get(context.Background(), community.ID)
+	if err != nil {
+		fmt.Printf("failed updating community: %v\n", err)
+		return nil, fmt.Errorf("failed updating community: %v", err)
+	}
+	updatedCommunity, err := foundCommunity.Update().
+		SetWhamSiteID(community.WhamSiteID).
+		SetWhamTitle(community.WhamTitle).
+		SetWhanDescription(community.WhanDescription).
+		SetWhamCommunityURL(community.WhamCommunityURL).
+		SetWhamCreated(community.WhamCreated).
+		SetWhamUpdated(community.WhamUpdated).
+		SetFeaturedFrom(community.FeaturedFrom).
+		SetFeaturedTo(community.FeaturedTo).
+		ClearAdgroup().
+		AddAdgroup(community.Edges.Adgroup...).
+		ClearCommunityCategory().
+		AddCommunityCategory(community.Edges.CommunityCategory...).
+		Save(context.Background())
+	if err != nil {
+		fmt.Printf("failed updating community: %v\n", err)
+		return nil, fmt.Errorf("failed updating community: %v", err)
+	}
+	// fmt.Printf("Community was updated from: %+v\n to: %+v\n", spew.Sdump(*foundCommunity), spew.Sdump(*updatedCommunity))
+	return updatedCommunity, nil
+}
+func (d *Database) DeleteCommunity(community *ent.Community) error {
+	foundCommunity, err := d.client.Community.Get(context.Background(), community.ID)
+	if err != nil {
+		fmt.Printf("failed deleting community: %v\n", err)
+		return fmt.Errorf("failed deleting community: %v", err)
+	}
+	err = d.client.Community.DeleteOne(foundCommunity).Exec(context.Background())
+	if err != nil {
+		fmt.Printf("failed deleting community: %v\n", err)
+		return fmt.Errorf("failed deleting community: %v", err)
+	}
+	// fmt.Printf("Community was deleted: %+v\n", spew.Sdump(*foundCommunity))
+	return nil
+}
+func (d *Database) UpdateCommunityCategory(communityCategory *ent.CommunityCategory) (*ent.CommunityCategory, error) {
+	foundCommunityCategory, err := d.client.CommunityCategory.Get(context.Background(), communityCategory.ID)
+	if err != nil {
+		fmt.Printf("failed updating community category: %v\n", err)
+		return nil, fmt.Errorf("failed updating community category: %v", err)
+	}
+	updatedCommunityCategory, err := foundCommunityCategory.Update().
+		SetName(communityCategory.Name).
+		SetDisplayOrder(communityCategory.DisplayOrder).
+		Save(context.Background())
+	if err != nil {
+		fmt.Printf("failed updating community category: %v\n", err)
+		return nil, fmt.Errorf("failed updating community category: %v", err)
+	}
+	// fmt.Printf("Community Category was updated from: %+v\n to: %+v\n", spew.Sdump(*foundCommunityCategory), spew.Sdump(*updatedCommunityCategory))
+	return updatedCommunityCategory, nil
+}
+func (d *Database) DeleteCommunityCategory(communityCategory *ent.CommunityCategory) error {
+	foundCommunityCategory, err := d.client.CommunityCategory.Get(context.Background(), communityCategory.ID)
+	if err != nil {
+		fmt.Printf("failed deleting community category: %v\n", err)
+		return fmt.Errorf("failed deleting community category: %v", err)
+	}
+	err = d.client.CommunityCategory.DeleteOne(foundCommunityCategory).Exec(context.Background())
+	if err != nil {
+		fmt.Printf("failed deleting community category: %v\n", err)
+		return fmt.Errorf("failed deleting community category: %v", err)
+	}
+	// fmt.Printf("Community Category was deleted: %+v\n", spew.Sdump(*foundCommunityCategory))
+	return nil
+}
+func (d *Database) UpdatePartner(partner *ent.Partner) (*ent.Partner, error) {
+	foundPartner, err := d.client.Partner.Get(context.Background(), partner.ID)
+	if err != nil {
+		fmt.Printf("failed updating partner: %v\n", err)
+		return nil, fmt.Errorf("failed updating partner: %v", err)
+	}
+	updatedPartner, err := foundPartner.Update().
+		SetWhamSiteID(partner.WhamSiteID).
+		SetWhamTitle(partner.WhamTitle).
+		SetWhamDescription(partner.WhamDescription).
+		SetKeycloakOrganisation(partner.KeycloakOrganisation).
+		SetWhamPartnerURL(partner.WhamPartnerURL).
+		SetWhamCreated(partner.WhamCreated).
+		SetWhamUpdated(partner.WhamUpdated).
+		ClearApplication().
+		AddApplication(partner.Edges.Application...).
+		Save(context.Background())
+	if err != nil {
+		fmt.Printf("failed updating partner: %v\n", err)
+		return nil, fmt.Errorf("failed updating partner: %v", err)
+	}
+	// fmt.Printf("Partner was updated from: %+v\n to: %+v\n", spew.Sdump(*foundPartner), spew.Sdump(*updatedPartner))
+	return updatedPartner, nil
+}
+func (d *Database) DeletePartner(partner *ent.Partner) error {
+	foundPartner, err := d.client.Partner.Get(context.Background(), partner.ID)
+	if err != nil {
+		fmt.Printf("failed deleting partner: %v\n", err)
+		return fmt.Errorf("failed deleting partner: %v", err)
+	}
+	err = d.client.Partner.DeleteOne(foundPartner).Exec(context.Background())
+	if err != nil {
+		fmt.Printf("failed deleting partner: %v\n", err)
+		return fmt.Errorf("failed deleting partner: %v", err)
+	}
+	// fmt.Printf("Partner was deleted: %+v\n", spew.Sdump(*foundPartner))
+	return nil
+}
