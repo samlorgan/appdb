@@ -2,17 +2,23 @@ package main
 
 import (
 	"dbapp/db"
+	"dbapp/ent"
 	"dbapp/handlers"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	fmt.Println("Running cmd/populate main")
-
+	godotenv.Load()
+	appName := os.Getenv("APP_NAME")
+	wd, _ := os.Getwd()
+	fmt.Println("Project:", appName, "Working Dir:", wd)
 	app := handlers.App{Database: db.Init()}
 	fmt.Println("****POPULATING DATABASE****")
 
@@ -23,6 +29,7 @@ func main() {
 	CreateCommunities(app)
 	CreateApplications(app)
 	CreatePartners(app)
+	CreateLinkedApplicationsAndPartners(app)
 	fmt.Println("****READING DATABASE****")
 	adGroups := app.Database.GetAllADGroups()
 	fmt.Printf("Read %d %T \n Breakdown %v\n", len(adGroups), adGroups, spew.Sdump(adGroups))
@@ -39,6 +46,21 @@ func main() {
 	partners := app.Database.GetAllPartners()
 	fmt.Printf("Read %d %T \n Breakdown %v\n", len(partners), partners, spew.Sdump(partners))
 	fmt.Println("****DONE****")
+
+}
+func CreateLinkedApplicationsAndPartners(app handlers.App) {
+
+	appCats := app.Database.GetAllApplicationCategories()
+	ac := appCats[1]
+	allApps := app.Database.GetAllApplications()
+	app1 := allApps[1]
+	newApp, err := app.Database.CreateApplication("AppName6", "Description6", "AltText6", "URI6", "IconURI6", true, time.Now(), time.Now(), ac)
+	if err != nil {
+		fmt.Println("Error creating application", err)
+		return
+	}
+
+	app.Database.CreatePartner(66, "Title6", "Description6", "KeycloakOrganisation6", "PartnerURL6", time.Now(), time.Now(), []*ent.Application{app1, newApp})
 
 }
 

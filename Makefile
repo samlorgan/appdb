@@ -2,12 +2,14 @@
 
 api:
 	go run dbapp/cmd/api/main.go
+dockerapi:
+	docker-compose -f dbapp/docker-compose/docker-compose.yml up
 drop:
-	go run dbapp/cmd/drop/main.go
+	cd dbapp/cmd/drop && go run main.go
 migrate:
-	go run dbapp/cmd/migrate/main.go
+	cd dbapp/cmd/migrate && go run main.go
 populate:
-	go run dbapp/cmd/populate/main.go
+	cd dbapp/cmd/populate && go run main.go
 entinit:
 	go run  entgo.io/ent/cmd/ent new Country	
 entgen:

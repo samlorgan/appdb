@@ -4,8 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/joho/godotenv"
 )
 
 func connect(dbuser, dbpass, dbhost, dbport, dbname string) (*sql.DB, error) {
@@ -42,11 +44,15 @@ func dropTable(db *sql.DB, table string) error {
 
 func main() {
 	fmt.Println("Running cmd/teardown main")
-	dbuser := "appuser"
-	dbpass := "pass"
-	dbhost := "localhost"
-	dbport := "3306"
-	dbname := "appdb"
+	godotenv.Load()
+	appName := os.Getenv("APP_NAME")
+	wd, _ := os.Getwd()
+	fmt.Println("Project:", appName, "Working Dir:", wd)
+	dbuser := os.Getenv("DB_USER")
+	dbpass := os.Getenv("DB_PASS")
+	dbhost := os.Getenv("DB_HOST")
+	dbport := os.Getenv("DB_PORT")
+	dbname := os.Getenv("DB_NAME")
 
 	db, err := connect(dbuser, dbpass, dbhost, dbport, dbname)
 	if err != nil {
