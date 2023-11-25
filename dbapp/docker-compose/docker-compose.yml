@@ -1,6 +1,6 @@
 version: "3.4"
 services:
-  poc_ent:
+  api:
     build:
       context: ../docker-compose
       dockerfile: dockerfile.app
@@ -47,7 +47,7 @@ services:
       - 8090:8090
     command: >
       sh -c "cd /app &&
-          go build -gcflags=all=\"-N -l\" -o main /app/cmd &&
+          go build -gcflags=all=\"-N -l\" -o main /app/cmd/api &&
           dlv --listen=:2350 --headless=true --api-version=2 --accept-multiclient exec /app/main --continue"
 networks:
   samnet:
