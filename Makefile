@@ -22,9 +22,9 @@ entinit:
 	go run  entgo.io/ent/cmd/ent new Country	
 entgen:
 	ent generate dbapp/ent/schema
-dbstart:
+dbup:
 	docker-compose -f mariadb/docker-compose.yml up -d
-dbstop:
+dbdown:
 	docker-compose -f mariadb/docker-compose.yml down
 dblogs:
 	docker-compose -f mariadb/docker-compose.yml logs -f
