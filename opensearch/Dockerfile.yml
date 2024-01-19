@@ -1,0 +1,9 @@
+FROM opensearchproject/opensearch:latest
+
+# Copy custom opensearch.yml
+COPY opensearch.yml /usr/share/opensearch/config/
+
+# Change ownership to opensearch user
+USER root
+RUN chown opensearch:opensearch config/opensearch.yml
+USER opensearch

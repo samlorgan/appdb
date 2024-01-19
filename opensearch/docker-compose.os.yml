@@ -1,0 +1,31 @@
+version: '3'
+services:
+  opensearch:
+    build:
+      context: ./
+      dockerfile: Dockerfile.yml
+    # image: opensearchproject/opensearch:latest
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+      - 9600:9600
+    networks:
+      - samnet
+
+  # opensearch-dashboards:
+  #   image: opensearchproject/opensearch-dashboards:latest
+  #   container_name: opensearch-dashboards
+  #   environment:
+  #     - OPENSEARCH_HOSTS=http://opensearch:9200
+  #   ports:
+  #     - 5601:5601
+  #   networks:
+  #     - samnet
+  #   depends_on:
+  #     - opensearch
+
+networks:
+  samnet:
+    external: true    
